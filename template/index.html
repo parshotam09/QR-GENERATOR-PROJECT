@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qr Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="max-w-3xl mx-auto px-4 py-16">
+    <h1 class="font-bold text-center text-3xl">Qr Code Generator</h1>
+   <div class="flex items-center gap-3 mt-10">
+    <div class="flex-1">
+        <input type="url" id="link" placeholder="Enter Your Link" class="w-full px-4 py-3 border border-gray-200
+        rounded-lg">
+    </div>
+<button onclick="createimage() " class="bg-blue-600 text-white px-6 py-3 rounded-lg">Click Me</button>
+   </div>
+   <div id="output" class="mt-8 p-4 bg-blue-600 rounded-lg shadow hidden"></div>
+   </div> 
+   <script>
+    async function createimage() {
+
+    const link = document.getElementById("link").value;
+    const output = document.getElementById("output");
+
+    if (link.trim() === "") {
+        alert("Please enter a link");
+        return;
+    }
+
+    output.classList.remove("hidden");
+    output.innerHTML = "QR Code Generating...";
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/route", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                link: link
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "QR generation failed");
+        }
+
+        output.innerHTML = `
+            <img src="${data.qr_code}" class="mx-auto w-48">
+        `;
+
+    } catch (error) {
+        console.log(error);
+        output.innerHTML = "QR Code Generate nahi hua!";
+    }
+}
+   </script>
+</body>
+</html>
